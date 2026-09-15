@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editor | Realms News</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="topbar">
+    <a class="brand" href="index.html"><span class="brand-mark">RN</span><span><strong>REALMS NEWS</strong><small>Editor</small></span></a>
+    <nav><a href="index.html">View site</a></nav>
+  </div>
+</header>
+<main class="editor-main">
+  <section class="editor-panel">
+    <p class="eyebrow">NEWSROOM CMS · VERSION 1</p>
+    <h1>Publish a story</h1>
+    <p class="muted">This first version saves drafts and published stories in this browser. A later version can connect this form to a secure online database and real authentication.</p>
+    <form id="storyForm">
+      <label>Headline<input id="title" required maxlength="120" placeholder="Your story headline"></label>
+      <label>Section
+        <select id="category"><option>School</option><option>Student Life</option><option>Sports</option><option>Arts</option><option>Community</option></select>
+      </label>
+      <label>Author<input id="author" required maxlength="60" placeholder="Student reporter"></label>
+      <label>Story<textarea id="body" required rows="10" placeholder="Write your story here..."></textarea></label>
+      <label>Photo URL (optional)<input id="image" type="url" placeholder="https://..."></label>
+      <label>Video URL (optional)<input id="video" type="url" placeholder="YouTube or other video URL"></label>
+      <div class="form-actions">
+        <button type="submit" class="button">Publish story</button>
+        <button type="button" class="button secondary" id="clear">Clear</button>
+      </div>
+    </form>
+    <div id="status" class="status" role="status"></div>
+  </section>
+</main>
+<script src="app.js"></script>
+<script src="editor.js"></script>
+</body>
+</html>

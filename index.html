@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#123b6d">
+<title>Student News — Version 1</title>
+<style>
+:root{--navy:#123b6d;--blue:#2468b1;--light:#f4f7fb;--ink:#14202b;--muted:#667585;--card:#fff;--line:#dce4ed}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--light);color:var(--ink)}
+header{background:var(--navy);color:white;position:sticky;top:0;z-index:5;box-shadow:0 2px 10px #0002}
+.bar{max-width:1100px;margin:auto;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{font-weight:800;font-size:22px;letter-spacing:-.4px}.tag{font-size:12px;opacity:.8}
+button,.btn{border:0;border-radius:10px;padding:11px 14px;font-weight:700;font-size:15px;cursor:pointer}
+.menuBtn{background:white;color:var(--navy)}.primary{background:var(--blue);color:white}.secondary{background:#e8eef5;color:var(--ink)}.danger{background:#ffe8e8;color:#a52222}
+nav{display:none;background:white;border-bottom:1px solid var(--line);padding:8px 18px}
+nav.open{display:block}nav a{display:block;padding:14px 8px;color:var(--ink);text-decoration:none;font-weight:700;border-bottom:1px solid #edf1f5}
+main{max-width:1100px;margin:auto;padding:22px 16px 70px}.hero{background:linear-gradient(135deg,#123b6d,#2468b1);color:white;border-radius:18px;padding:28px;margin-bottom:22px}.hero h1{font-size:clamp(30px,6vw,52px);margin:0 0 8px}.hero p{margin:0;opacity:.9}
+.sectionTitle{display:flex;align-items:center;justify-content:space-between;margin:25px 0 12px}.sectionTitle h2{margin:0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px}.card{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:17px;box-shadow:0 2px 7px #00000009}.card img,.card video{width:100%;border-radius:10px;margin-bottom:10px;max-height:300px;object-fit:cover}.card h3{margin:5px 0 7px}.meta{font-size:12px;color:var(--muted)}.empty{color:var(--muted);padding:22px 0}
+.page{display:none}.page.active{display:block}
+#editor{position:fixed;inset:0;background:#0008;z-index:20;display:none;overflow:auto;padding:20px}#editor.show{display:block}.panel{background:white;max-width:850px;margin:20px auto;border-radius:18px;padding:20px}.panelHead{display:flex;justify-content:space-between;align-items:center}.panel h2{margin-top:0}.form{display:grid;gap:10px}.form input,.form textarea,.form select{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;font:inherit}.form textarea{min-height:150px;resize:vertical}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.editorTabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.editorView{display:none}.editorView.active{display:block}.item{display:flex;justify-content:space-between;gap:10px;align-items:center;border:1px solid var(--line);padding:12px;border-radius:10px;margin:8px 0}.small{font-size:13px}
+#pinScreen{position:fixed;inset:0;background:#f4f7fb;z-index:30;display:none;place-items:center;padding:20px}.pinbox{background:white;border-radius:18px;padding:24px;max-width:360px;width:100%;box-shadow:0 8px 30px #0002}.pinbox input{width:100%;font-size:28px;letter-spacing:8px;text-align:center;padding:12px;border:1px solid #ccd6e2;border-radius:10px}.error{color:#b42318;min-height:20px}
+@media(max-width:600px){.row{grid-template-columns:1fr}.hero{padding:22px}.bar{padding:12px 14px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <div><div class="brand" id="siteName">Student News</div><div class="tag">Journalism • Version 1</div></div>
+    <button class="menuBtn" onclick="toggleNav()">☰ Menu</button>
+  </div>
+  <nav id="nav">
+    <a href="#" onclick="showPage('home')">🏠 Home</a>
+    <a href="#" onclick="showPage('articles')">📰 Articles</a>
+    <a href="#" onclick="showPage('videos')">🎥 Videos</a>
+    <a href="#" onclick="showPage('polls')">📊 Polls</a>
+    <div id="customNav"></div>
+    <a href="#" onclick="openEditor()">🔒 Editor</a>
+  </nav>
+</header>
+
+<main>
+<section id="home" class="page active">
+  <div class="hero"><h1 id="heroTitle">Your School. Your Stories.</h1><p>A student-run place for news, interviews, videos and opinions.</p></div>
+  <div class="sectionTitle"><h2>Latest Articles</h2></div><div id="homeArticles" class="grid"></div>
+  <div class="sectionTitle"><h2>Latest Videos</h2></div><div id="homeVideos" class="grid"></div>
+</section>
+<section id="articles" class="page"><div class="sectionTitle"><h2>Articles</h2></div><div id="articleList" class="grid"></div></section>
+<section id="videos" class="page"><div class="sectionTitle"><h2>Videos</h2></div><div id="videoList" class="grid"></div></section>
+<section id="polls" class="page"><div class="sectionTitle"><h2>Polls</h2></div><div id="pollList" class="grid"></div></section>
+<div id="customPages"></div>
+</main>
+
+<div id="pinScreen">
+  <div class="pinbox">
+    <h2>Editor Access</h2><p>Enter the editor PIN to make changes.</p>
+    <input id="pinInput" inputmode="numeric" maxlength="4" type="password">
+    <div class="error" id="pinError"></div>
+    <div style="display:flex;gap:8px"><button class="primary" onclick="checkPin()">Unlock</button><button class="secondary" onclick="closePin()">Cancel</button></div>
+  </div>
+</div>
+
+<div id="editor">
+<div class="panel">
+  <div class="panelHead"><h2>Editor Dashboard</h2><button class="secondary" onclick="closeEditor()">Close</button></div>
+  <div class="editorTabs">
+    <button class="primary" onclick="editorTab('articleEdit')">+ Article</button>
+    <button class="primary" onclick="editorTab('videoEdit')">+ Video</button>
+    <button class="primary" onclick="editorTab('pollEdit')">+ Poll</button>
+    <button class="primary" onclick="editorTab('pageEdit')">+ Page</button>
+    <button class="secondary" onclick="editorTab('manage')">Manage</button>
+    <button class="secondary" onclick="editorTab('settings')">Settings</button>
+  </div>
+  <div id="articleEdit" class="editorView active">
+    <h3>Create Article</h3>
+    <div class="form"><input id="aTitle" placeholder="Headline"><div class="row"><input id="aAuthor" placeholder="Author"><input id="aSection" placeholder="Section (Sports, News, etc.)"></div><textarea id="aBody" placeholder="Write the article here..."></textarea><input id="aImage" type="file" accept="image/*"><button class="primary" onclick="addArticle()">Publish Article</button></div>
+  </div>
+  <div id="videoEdit" class="editorView">
+    <h3>Add Video</h3><div class="form"><input id="vTitle" placeholder="Video title"><textarea id="vDesc" placeholder="Description"></textarea><input id="vFile" type="file" accept="video/*"><button class="primary" onclick="addVideo()">Publish Video</button></div>
+    <p class="small">Tip: Version 1 stores uploaded media in this browser. Large videos may use a lot of iPad storage.</p>
+  </div>
+  <div id="pollEdit" class="editorView">
+    <h3>Create Poll</h3><div class="form"><input id="pQuestion" placeholder="Poll question"><input id="pOption1" placeholder="Option 1"><input id="pOption2" placeholder="Option 2"><input id="pOption3" placeholder="Option 3 (optional)"><button class="primary" onclick="addPoll()">Publish Poll</button></div>
+  </div>
+  <div id="pageEdit" class="editorView">
+    <h3>Create Page</h3><div class="form"><input id="pgName" placeholder="Page name (e.g. Sports)"><textarea id="pgIntro" placeholder="Page introduction"></textarea><button class="primary" onclick="addPage()">Create Page</button></div>
+  </div>
+  <div id="manage" class="editorView"><h3>Manage Content</h3><div id="manageList"></div></div>
+  <div id="settings" class="editorView"><h3>Site Settings</h3><div class="form"><input id="newSiteName" placeholder="Site name"><input id="newHeroTitle" placeholder="Homepage headline"><button class="primary" onclick="saveSettings()">Save Settings</button></div></div>
+</div></div>
+
+<script>
+const PIN="8726";
+const key="studentNewsV1";
+let db=JSON.parse(localStorage.getItem(key)||'null')||{siteName:"Student News",heroTitle:"Your School. Your Stories.",articles:[],videos:[],polls:[],pages:[]};
+function save(){localStorage.setItem(key,JSON.stringify(db));render();}
+function esc(s){return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));}
+function toggleNav(){document.getElementById("nav").classList.toggle("open")}
+function showPage(id){document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));document.getElementById(id)?.classList.add("active");document.getElementById("nav").classList.remove("open");window.scrollTo(0,0)}
+function openEditor(){document.getElementById("nav").classList.remove("open");document.getElementById("pinScreen").style.display="grid";setTimeout(()=>document.getElementById("pinInput").focus(),50)}
+function closePin(){document.getElementById("pinScreen").style.display="none";document.getElementById("pinInput").value="";document.getElementById("pinError").textContent=""}
+function checkPin(){if(document.getElementById("pinInput").value===PIN){closePin();document.getElementById("editor").classList.add("show");editorTab("articleEdit")}else document.getElementById("pinError").textContent="Incorrect PIN."}
+function closeEditor(){document.getElementById("editor").classList.remove("show")}
+function editorTab(id){document.querySelectorAll(".editorView").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");if(id==="manage")renderManage()}
+function fileData(file,cb){if(!file){cb("");return}const r=new FileReader();r.onload=()=>cb(r.result);r.readAsDataURL(file)}
+function addArticle(){const t=aTitle.value.trim(),b=aBody.value.trim();if(!t||!b)return alert("Add a headline and article text.");fileData(aImage.files[0],img=>{db.articles.unshift({id:Date.now(),title:t,author:aAuthor.value.trim()||"Student Staff",section:aSection.value.trim()||"News",body:b,image:img,date:new Date().toLocaleDateString()});[aTitle,aAuthor,aSection,aBody].forEach(x=>x.value="");aImage.value="";save();alert("Article published!");})}
+function addVideo(){const f=vFile.files[0],t=vTitle.value.trim();if(!f||!t)return alert("Choose a video and give it a title.");fileData(f,data=>{db.videos.unshift({id:Date.now(),title:t,desc:vDesc.value.trim(),data,date:new Date().toLocaleDateString()});vTitle.value="";vDesc.value="";vFile.value="";save();alert("Video published!");})}
+function addPoll(){const q=pQuestion.value.trim(),opts=[pOption1.value,pOption2.value,pOption3.value].map(x=>x.trim()).filter(Boolean);if(!q||opts.length<2)return alert("Add a question and at least two choices.");db.polls.unshift({id:Date.now(),q,opts, votes:opts.map(()=>0)});[pQuestion,pOption1,pOption2,pOption3].forEach(x=>x.value="");save();alert("Poll published!")}
+function addPage(){const n=pgName.value.trim();if(!n)return alert("Add a page name.");const id="page_"+Date.now();db.pages.push({id,name:n,intro:pgIntro.value.trim()});pgName.value="";pgIntro.value="";save();alert("Page created!")}
+function vote(id,i){const p=db.polls.find(x=>x.id===id);if(!p||sessionStorage.getItem("voted_"+id))return; p.votes[i]++;sessionStorage.setItem("voted_"+id,"1");save()}
+function articleCard(a){return `<article class="card">${a.image?`<img src="${a.image}" alt="">`:''}<div class="meta">${esc(a.section)} • ${esc(a.date)}</div><h3>${esc(a.title)}</h3><div class="meta">By ${esc(a.author)}</div><p>${esc(a.body).slice(0,180)}${a.body.length>180?"…":""}</p></article>`}
+function videoCard(v){return `<article class="card"><video controls playsinline src="${v.data}"></video><h3>${esc(v.title)}</h3><p>${esc(v.desc)}</p><div class="meta">${esc(v.date)}</div></article>`}
+function pollCard(p){const total=p.votes.reduce((a,b)=>a+b,0);return `<article class="card"><h3>${esc(p.q)}</h3>${p.opts.map((o,i)=>{let pct=total?Math.round(p.votes[i]/total*100):0;return `<div style="margin:10px 0"><button class="secondary" style="width:100%;text-align:left" onclick="vote(${p.id},${i})">${esc(o)} — ${pct}%</button><div style="height:7px;background:#e5eaf0;border-radius:10px;margin-top:5px"><div style="height:100%;width:${pct}%;background:#2468b1;border-radius:10px"></div></div></div>`}).join("")}<div class="meta">${total} vote${total===1?"":"s"}</div></article>`}
+function render(){siteName.textContent=db.siteName;heroTitle.textContent=db.heroTitle;articleList.innerHTML=db.articles.length?db.articles.map(articleCard).join(""):'<div class="empty">No articles yet. Open Editor to publish the first one.</div>';homeArticles.innerHTML=db.articles.slice(0,3).map(articleCard).join("")||'<div class="empty">No articles yet.</div>';videoList.innerHTML=db.videos.length?db.videos.map(videoCard).join(""):'<div class="empty">No videos yet.</div>';homeVideos.innerHTML=db.videos.slice(0,2).map(videoCard).join("")||'<div class="empty">No videos yet.</div>';pollList.innerHTML=db.polls.length?db.polls.map(pollCard).join(""):'<div class="empty">No polls yet.</div>';customNav.innerHTML=db.pages.map(p=>`<a href="#" onclick="showPage('${p.id}')">📄 ${esc(p.name)}</a>`).join("");customPages.innerHTML=db.pages.map(p=>`<section id="${p.id}" class="page"><div class="hero"><h1>${esc(p.name)}</h1><p>${esc(p.intro)}</p></div><div class="sectionTitle"><h2>Stories</h2></div><div class="grid">${db.articles.filter(a=>a.section.toLowerCase()===p.name.toLowerCase()).map(articleCard).join("")||'<div class="empty">No stories on this page yet. Create an article and use this page name as its section.</div>'}</div></section>`).join("")}
+function renderManage(){manageList.innerHTML=[...db.articles.map(a=>`<div class="item"><span><b>Article:</b> ${esc(a.title)}</span><button class="danger" onclick="del('articles',${a.id})">Delete</button></div>`),...db.videos.map(v=>`<div class="item"><span><b>Video:</b> ${esc(v.title)}</span><button class="danger" onclick="del('videos',${v.id})">Delete</button></div>`),...db.polls.map(p=>`<div class="item"><span><b>Poll:</b> ${esc(p.q)}</span><button class="danger" onclick="del('polls',${p.id})">Delete</button></div>`),...db.pages.map(p=>`<div class="item"><span><b>Page:</b> ${esc(p.name)}</span><button class="danger" onclick="del('pages','${p.id}')">Delete</button></div>`)].join("")||'<div class="empty">Nothing to manage yet.</div>'}
+function del(type,id){if(confirm("Delete this item?")){db[type]=db[type].filter(x=>x.id!=id);save();renderManage()}}
+function saveSettings(){db.siteName=newSiteName.value.trim()||db.siteName;db.heroTitle=newHeroTitle.value.trim()||db.heroTitle;save();alert("Settings saved!")}
+render();
+</script>
+</body>
+</html>
